@@ -1,0 +1,87 @@
+from PySide6.QtCore import Qt, QPropertyAnimation
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QStackedWidget, QVBoxLayout, QFrame, QToolButton, QPushButton
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("MainWindow")
+        self.setGeometry(100, 100, 800, 600)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.main_layout = QVBoxLayout(self.central_widget)
+
+        # Stacked widget to manage pages
+        self.stacked_widget = QStackedWidget()
+        self.main_layout.addWidget(self.stacked_widget)
+
+        # Create pages
+        self.create_pages()
+
+        # Create side bar
+        self.create_sidebar()
+
+    def create_pages(self):
+        # Define pages
+        self.page1 = QWidget()
+        self.page1.setStyleSheet("background-color: #00D576;")  # Set background color
+        self.page2 = QWidget()
+        self.page2.setStyleSheet("background-color: #00D576;")  # Set background color
+
+        # Add pages to stacked widget
+        self.stacked_widget.addWidget(self.page1)
+        self.stacked_widget.addWidget(self.page2)
+
+    def create_sidebar(self):
+        self.sidebar_widget = QFrame()
+        self.sidebar_widget.setFrameShape(QFrame.StyledPanel)
+        self.sidebar_widget.setStyleSheet("background-color: #00D576;")
+        self.sidebar_widget.setMaximumWidth(0)  # Start with closed sidebar
+
+        self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
+        self.sidebar_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Add buttons to sidebar
+        self.home_btn = QToolButton()
+        self.home_btn.setText("Home")
+        self.home_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(0))
+
+        self.page2_btn = QToolButton()
+        self.page2_btn.setText("Page 2")
+        self.page2_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
+
+        self.sidebar_layout.addWidget(self.home_btn)
+        self.sidebar_layout.addWidget(self.page2_btn)
+
+        # Add sidebar widget to layout
+        self.main_layout.addWidget(self.sidebar_widget)
+
+        # Button to toggle sidebar
+        self.toggle_btn = QPushButton("Toggle Sidebar")
+        self.toggle_btn.clicked.connect(self.toggle_sidebar)
+        self.main_layout.addWidget(self.toggle_btn)
+
+        self.sidebar_open_width = 200
+        self.sidebar_close_width = 0
+        self.anim = QPropertyAnimation(self.sidebar_widget, b"maximumWidth")
+        self.anim.setDuration(300)
+        self.anim.setStartValue(self.sidebar_close_width)
+        self.anim.setEndValue(self.sidebar_open_width)
+
+    def toggle_sidebar(self):
+        if self.sidebar_widget.maximumWidth() == self.sidebar_close_width:
+            self.anim.setStartValue(self.sidebar_close_width)
+            self.anim.setEndValue(self.sidebar_open_width)
+        else:
+            self.anim.setStartValue(self.sidebar_open_width)
+            self.anim.setEndValue(self.sidebar_close_width)
+
+        self.anim.start()
+
+if __name__ == "__main__":
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec()
